@@ -1,17 +1,10 @@
-enum Ensure
-{
-   Absent
-   Present
-}
-
-
 [DscResource()]
 class xTimeZone
 {
-   [ValidateSet('True')]
+   [ValidateSet('Yes')]
    [DscProperty(Key)] 
    [ValidateNotNullorEmpty()]
-   [String] $SingleInstance = 'True'
+   [String] $IsSingleInstance
 
    [DscProperty(Mandatory)] 
    [ValidateNotNullorEmpty()]
@@ -20,10 +13,6 @@ class xTimeZone
    #Set function similar to Set-TargetResource
    [void] Set()
    {
-      if($this.SingleInstance -ne 'Singleton')
-      {
-         throw 'SingleInstance must be "True"'
-      }
       #Output the result of Get-TargetResource function.
       $CurrentTimeZone = Get-TimeZone
 
@@ -47,10 +36,6 @@ class xTimeZone
    #Test function similar to Test-TargetResource
    [bool] Test()
    {
-      if($This.SingleInstance -ne 'Singleton')
-      {
-         throw 'SingleInstance must be "True"'
-      }
       #Output from Get-TargetResource
       $CurrentTimeZone = Get-TimeZone
 
@@ -65,10 +50,6 @@ class xTimeZone
    #Get function similar to Get-TargetResource
    [xTimeZone] Get()
    {
-      if($This.SingleInstance -ne 'Singleton')
-      {
-         throw 'SingleInstance must be "True"'
-      }
       #Get the current TimeZone
       $CurrentTimeZone = Get-TimeZone
 
