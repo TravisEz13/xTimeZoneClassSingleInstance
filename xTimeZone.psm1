@@ -8,19 +8,21 @@ class xTimeZone
 
    [DscProperty(Mandatory)] 
    [ValidateNotNullorEmpty()]
-   [String] $TimeZone = $null
+   [String] $TimeZone
  
    #Set function similar to Set-TargetResource
    [void] Set()
    {
       #Output the result of Get-TargetResource function.
-      $CurrentTimeZone = Get-TimeZone
+      $CurrentTimeZone = $This.GetTimeZone()
 
       If($PSCmdlet.ShouldProcess("'$($This.TimeZone)'","Replace the System Time Zone"))
       {
         Try{
             if($CurrentTimeZone -ne $This.TimeZone){
                 Write-Verbose "Setting the TimeZone"
+                
+                $This.SetTimeZone($This.TimeZone)
                 Set-TimeZone -TimeZone $This.TimeZone}
             else{
                 Write-Verbose "TimeZone already set to $($this.TimeZone)"
@@ -37,7 +39,9 @@ class xTimeZone
    [bool] Test()
    {
       #Output from Get-TargetResource
-      $CurrentTimeZone = Get-TimeZone
+      Write-Verbose -verbose -Message "Getting TimeZone..."
+      $CurrentTimeZone = $This.GetTimeZone()
+      Write-Verbose -verbose -Message "TimeZone: $CurrentTimeZone"
 
       If($This.TimeZone -eq $CurrentTimeZone){
           return $true
@@ -45,17 +49,35 @@ class xTimeZone
       Else{
           return $false
       }
+      return $false
    }
  
    #Get function similar to Get-TargetResource
    [xTimeZone] Get()
    {
       #Get the current TimeZone
-      $CurrentTimeZone = Get-TimeZone
+      $CurrentTimeZone = $This.GetTimeZone()
 
           $this.TimeZone = $CurrentTimeZone
 
       #Output the target resource
       return $this
+   }
+
+   
+   [string] GetTimeZone()
+   {
+      return & tzutil.exe /g
+   }
+
+   [void] SetTimeZone([String] $TimeZone)
+   {
+      try{
+          & tzutil.exe /s $TimeZone    
+      }catch{
+          $ErrorMsg = $_.Exception.Message
+          Write-Verbose $ErrorMsg
+      }
+
    }
 }
